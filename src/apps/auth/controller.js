@@ -32,6 +32,7 @@ module.exports = {
   }),
   socialLogin: asyncHandler(async (req, res, next) => {
 
+    console.log("LOGGING USER IN");
     const { email, given_name: firstName, family_name: lastName, picture: image, sub: socialId } = await controllerUtils.verifyGoogleToken(req.body.token)
 
     let user = await users.findOne({
