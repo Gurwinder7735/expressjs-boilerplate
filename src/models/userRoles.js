@@ -29,6 +29,7 @@ module.exports = function(sequelize, DataTypes) {
     schema: 'public',
     timestamps: true,
     paranoid: true,
+    underscored: false,
     indexes: [
       {
         name: "userRoles_pkey",

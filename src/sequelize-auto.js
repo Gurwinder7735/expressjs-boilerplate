@@ -8,7 +8,9 @@ const auto = new SequelizeAuto(db.sequelize, null, null, {
   // Other sequelize-auto options
   additional: {
     timestamps: true,
+    underscored: false
   },
+
 });
 
 auto.run((err) => {

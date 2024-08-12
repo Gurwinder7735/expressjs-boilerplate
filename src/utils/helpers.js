@@ -32,11 +32,11 @@ module.exports = {
 
           resolve({
             data: results.rows,
-            total_items: results.count,
-            current_page: currentPage,
-            total_pages: totalPages,
-            has_next_page: hasNextPage,
-            has_prev_page: hasPrevPage,
+            totalItems: results.count,
+            currentPage: currentPage,
+            totalPages: totalPages,
+            hasNextPage: hasNextPage,
+            hasPrevPage: hasPrevPage,
           });
         })
         .catch((err) => reject(err));

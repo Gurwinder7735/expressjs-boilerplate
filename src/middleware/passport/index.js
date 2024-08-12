@@ -22,6 +22,8 @@ const strategies = {
     default: new JwtStrategy(opts, async (payload, done) => {
         try {
 
+
+
             const user = await users.findByPk(payload.id, {
                 include: {
                     model: userRoles,
@@ -34,6 +36,8 @@ const strategies = {
                 raw: true,
                 nest: true
             });
+
+
 
             if (user) {
                 user.role = user?.userRoles?.role?.roleName;
@@ -66,6 +70,7 @@ function authenticateRole(role = "all") {
             },
             (err, user) => {
 
+                console.log(err, ">>>>>>>>>>>>>>>>>>>>>");
 
                 if (err && err.name && err.name === "JsonWebTokenError") {
                     return next(new AppError(RESPONSE_MSGS.ERROR.INVALID_TOKEN, STATUS_CODES.ROLE_CHANGE));
@@ -75,6 +80,8 @@ function authenticateRole(role = "all") {
                     console.log(err, "err>>>>");
                     return next(new AppError(RESPONSE_MSGS.ERROR.TOKEN_MISSING, STATUS_CODES.ROLE_CHANGE));
                 }
+
+                console.log(user, "????????????????");
 
                 if (!user) {
                     return next(new AppError(RESPONSE_MSGS.ERROR.TOKEN_MISSING, STATUS_CODES.ROLE_CHANGE));
@@ -87,7 +94,7 @@ function authenticateRole(role = "all") {
                     }
                 }
 
-                req.auth = user
+                req.user = user
                 next();
             }
         )(req, res, next);

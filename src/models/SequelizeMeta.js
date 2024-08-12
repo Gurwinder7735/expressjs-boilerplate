@@ -11,6 +11,7 @@ module.exports = function(sequelize, DataTypes) {
     tableName: 'SequelizeMeta',
     schema: 'public',
     timestamps: true,
+    underscored: false,
     indexes: [
       {
         name: "SequelizeMeta_pkey",

@@ -5,7 +5,8 @@ try {
   const config = require('./config/config.js');
 
   const bodyParser = require('body-parser');
-  const router = require('./apps/auth/index.js');
+  const authRouter = require('./apps/auth/index.js');
+  const chatRouter = require('./apps/chat/index.js');
   const errorHandler = require('./middleware/error-handler.js');
   const app = express();
   const passport = require("./middleware/passport")
@@ -23,7 +24,8 @@ try {
   // parse application/json
   app.use(bodyParser.json());
 
-  app.use('/api/auth', [router]);
+  app.use('/api/auth', [authRouter]);
+  app.use('/api/chat', [chatRouter]);
 
   app.use(errorHandler);
 

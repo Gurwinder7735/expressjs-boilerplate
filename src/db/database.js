@@ -7,6 +7,11 @@ const databaseConfig = {
     database: config.dev_db_name,
     host: config.dev_db_host,
     dialect: config.dev_db_dialect,
+    define: {
+      underscored: false, // Expect camelCase
+      freezeTableName: true, // Prevent Sequelize from pluralizing table names
+
+    },
   },
   test: {
     username: config.test_db_username,
@@ -14,7 +19,11 @@ const databaseConfig = {
     database: config.test_db_name,
     host: config.test_db_host,
     dialect: config.test_db_dialect,
-    logging: false
+    logging: false,
+    define: {
+      underscored: false, // Expect camelCase
+      freezeTableName: true, // Prevent Sequelize from pluralizing table names
+    },
   },
   production: {
     username: config.prod_db_username,
@@ -22,7 +31,11 @@ const databaseConfig = {
     database: config.prod_db_name,
     host: config.prod_db_host,
     dialect: config.prod_db_dialect,
-    logging: false
+    logging: false,
+    define: {
+      underscored: false, // Expect camelCase
+      freezeTableName: true, // Prevent Sequelize from pluralizing table names
+    },
   },
 };
 module.exports = databaseConfig;

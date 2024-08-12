@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-module.exports = function (sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
   return sequelize.define('users', {
     id: {
       autoIncrement: true,
@@ -74,6 +74,11 @@ module.exports = function (sequelize, DataTypes) {
     socialId: {
       type: DataTypes.STRING(255),
       allowNull: true
+    },
+    isOnline: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
@@ -81,6 +86,7 @@ module.exports = function (sequelize, DataTypes) {
     schema: 'public',
     timestamps: true,
     paranoid: true,
+    underscored: false,
     indexes: [
       {
         name: "users_pkey",
