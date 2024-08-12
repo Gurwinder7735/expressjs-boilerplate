@@ -11,7 +11,7 @@ validator.createChat = {
 
 validator.getChat = {
   params: Joi.object({
-    receiverId: Joi.any().required(),
+    chatId: Joi.any().required(),
   }),
 
 };

@@ -44,6 +44,6 @@ module.exports = {
   },
 
   getChatEventName: (name) => {
-    return `${process.env.CHAT_EVENT}-${name}`;
+    return `${name}`;
   }
 }

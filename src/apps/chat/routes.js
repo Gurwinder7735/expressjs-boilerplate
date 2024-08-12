@@ -24,7 +24,7 @@ router.use(authenticateRole("USER"));
 
 router.post('/:receiverSlug', validator.params(validators.createChat.params), createChat);
 router.get('/all', getAllChats);
-router.get('/:receiverId', validator.params(validators.getChat.params), getChat);
+router.get('/:chatId', validator.params(validators.getChat.params), getChat);
 router.post('/send-message/:receiverId', [validator.params(validators.sendMessage.params), validator.body(validators.sendMessage.body)], sendMessage);
 router.put('/read-messages/:chatId', validator.params(validators.readMessages.params), readMessages);
 router.delete('/:id', validator.params(validators.deleteChat.params), deleteChat);

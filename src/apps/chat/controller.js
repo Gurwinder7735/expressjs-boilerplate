@@ -165,23 +165,23 @@ module.exports = {
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.id
           ELSE u2.id
-        END AS senderId,
+        END AS "senderId",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.name
           ELSE u2.name
-        END AS senderName,
+        END AS "senderName",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.email
           ELSE u2.email
-        END AS senderEmail,
+        END AS "senderEmail",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.image
           ELSE u2.image
-        END AS senderImage,
+        END AS "senderImage",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.id
           ELSE u1.id
-        END AS receiverId,
+        END AS "receiverId",
         (
           SELECT "isOnline"
           FROM users u
@@ -191,19 +191,19 @@ module.exports = {
               ELSE u1.id
             END
           )
-        ) AS isOnline,
+        ) AS "isOnline",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.name
           ELSE u1.name
-        END AS receiverName,
+        END AS "receiverName",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.email
           ELSE u1.email
-        END AS receiverEmail,
+        END AS "receiverEmail",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.image
           ELSE u1.image
-        END AS receiverImage,
+        END AS "receiverImage",
         (
           SELECT COUNT(*)
           FROM "chatMessages"
@@ -211,14 +211,14 @@ module.exports = {
             AND "receiverId" = :loggedInUser
             AND "isRead" = false
             AND "deletedBy" IS DISTINCT FROM :loggedInUser
-        ) AS unreadMessagesCount,
+        ) AS "unreadMessagesCount",
         (
           SELECT message
           FROM "chatMessages"
           WHERE "deletedBy" IS DISTINCT FROM :loggedInUser 
             AND "chatMessages"."chatId" = c.id 
           ORDER BY id DESC LIMIT 1
-        ) AS lastMessage
+        ) AS "lastMessage"
       FROM 
         "chatConstants" c
       JOIN 
@@ -400,6 +400,8 @@ module.exports = {
       emitSocketEvent(req, receiverId.toString(), CHAT_EVENTS.NEW_CHAT, newChat[0]);
     }
 
+
+
     emitSocketEvent(req, receiverId.toString(), CHAT_EVENTS.MESSAGE_RECEIVED_EVENT, {
       ...sendMessage,
       isNewChat: isNewChat, // Changed is_new_chat to isNewChat
@@ -428,10 +430,46 @@ module.exports = {
   }),
 
   getChat: asyncHandler(async (req, res, next) => {
-    const { receiverId } = req.params;
+    const { chatId } = req.params;
     const { page, limit } = req.query;
 
-    const getUser = users.findOne({
+
+
+    // const { receiverId } = req.params;
+    // const getUser = users.findOne({
+    //   where: {
+    //     id: receiverId,
+    //   },
+    //   attributes: [
+    //     'isOnline', // Changed is_online to isOnline
+    //     'name',
+    //     ['image', 'receiverImage'],
+    //   ],
+    //   raw: true,
+    // });
+
+    // const getChatConstant = chatConstants.findOne({ // Changed chat_constants to chatConstants
+    //   where: {
+    //     [Op.or]: [
+    //       {
+    //         user1Id: req.user.id, // Changed user1_id to user1Id
+    //         user2Id: receiverId, // Changed user2_id to user2Id
+    //       },
+    //       {
+    //         user1Id: receiverId, // Changed user1_id to user1Id
+    //         user2Id: req.user.id, // Changed user2_id to user2Id
+    //       },
+    //     ],
+    //   },
+    // });
+
+    const chatConstant = await chatConstants.findByPk(chatId, { raw: true });
+
+
+    // return res.json(chatConstant)
+
+    const receiverId = chatConstant?.user1Id == req.user.id ? chatConstant.user2Id : chatConstant?.user1Id
+    const user = await users.findOne({
       where: {
         id: receiverId,
       },
@@ -443,35 +481,11 @@ module.exports = {
       raw: true,
     });
 
-    const getChatConstant = chatConstants.findOne({ // Changed chat_constants to chatConstants
-      where: {
-        [Op.or]: [
-          {
-            user1Id: req.user.id, // Changed user1_id to user1Id
-            user2Id: receiverId, // Changed user2_id to user2Id
-          },
-          {
-            user1Id: receiverId, // Changed user1_id to user1Id
-            user2Id: req.user.id, // Changed user2_id to user2Id
-          },
-        ],
-      },
-    });
 
-    const [user, chatConstant] = await Promise.all([getUser, getChatConstant]);
 
     const query = {
       where: {
-        [Op.or]: [
-          {
-            senderId: req.user.id, // Changed senderId to senderId
-            receiverId: receiverId, // Changed receiverId to receiverId
-          },
-          {
-            senderId: receiverId, // Changed senderId to senderId
-            receiverId: req.user.id, // Changed receiverId to receiverId
-          },
-        ],
+        chatId,
         deletedBy: { // Changed deleted_by to deletedBy
           [Op.or]: [
             { [Op.notIn]: [req.user.id] },
@@ -522,8 +536,6 @@ module.exports = {
       name: user?.name,
       receiverSlug: user?.slug, // Changed receiver_slug to receiverSlug
       receiverImage: user?.receiverImage || '', // Changed receiver_image to receiverImage
-      profession: user?.profession || '',
-      officeName: user?.officeName || '', // Changed office_name to officeName
       receiverId: receiverId, // Changed receiverId to receiverId
       archivedBy: chatConstant?.archived_by, // Changed archived_by to archivedBy
       chat: {
