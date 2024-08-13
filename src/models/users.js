@@ -79,6 +79,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    chatToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      unique: "users_chatToken_key"
     }
   }, {
     sequelize,
@@ -88,6 +93,13 @@ module.exports = function(sequelize, DataTypes) {
     paranoid: true,
     underscored: false,
     indexes: [
+      {
+        name: "users_chatToken_key",
+        unique: true,
+        fields: [
+          { name: "chatToken" },
+        ]
+      },
       {
         name: "users_pkey",
         unique: true,

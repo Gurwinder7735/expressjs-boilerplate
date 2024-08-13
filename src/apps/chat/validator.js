@@ -3,8 +3,11 @@ const Joi = require('joi');
 const validator = {};
 
 validator.createChat = {
-  params: Joi.object({
-    receiverSlug: Joi.any().required(),
+  // params: Joi.object({
+  //   chatToken: Joi.any().required(),
+  // }),
+  body: Joi.object({
+    chatToken: Joi.any().required(),
   }),
 };
 

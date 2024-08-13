@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-module.exports = function (sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
   return sequelize.define('chatConstants', {
     id: {
       autoIncrement: true,
@@ -48,6 +48,7 @@ module.exports = function (sequelize, DataTypes) {
     tableName: 'chatConstants',
     schema: 'public',
     timestamps: true,
+    underscored: false,
     indexes: [
       {
         name: "chatConstants_pkey",

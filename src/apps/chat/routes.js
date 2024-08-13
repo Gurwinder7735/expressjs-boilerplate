@@ -22,7 +22,7 @@ const router = Router();
 router.use(authenticateRole("USER"));
 
 
-router.post('/:receiverSlug', validator.params(validators.createChat.params), createChat);
+router.post('/', [validator.body(validators.createChat.body)], createChat);
 router.get('/all', getAllChats);
 router.get('/:chatId', validator.params(validators.getChat.params), getChat);
 router.post('/send-message/:receiverId', [validator.params(validators.sendMessage.params), validator.body(validators.sendMessage.body)], sendMessage);

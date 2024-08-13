@@ -1,7 +1,7 @@
 const db = require("../../models");
 const initModels = require("../../models/init-models");
 
-const { chatMessages } = initModels(db.sequelize);
+const { chatMessages, users } = initModels(db.sequelize);
 
 module.exports = {
     getUnreadMessagesCount: async (userId) => {
@@ -14,5 +14,16 @@ module.exports = {
         });
 
         return unreadMessages;
+    },
+    getUserFromChatToken: async (chatToken) => {
+
+        const user = await users.findOne({
+            where: {
+                chatToken
+            },
+            raw: true
+        });
+
+        return user;
     }
 }

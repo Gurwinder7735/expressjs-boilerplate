@@ -42,6 +42,7 @@ module.exports = {
       raw: true
     });
 
+
     // Get the ID of the ADMIN role
     const getAllRoles = await roles.findAll({
       raw: true
@@ -54,6 +55,7 @@ module.exports = {
     if (!user) {
       user = await controllerUtils.createUser({
         email,
+        name: firstName + " " + lastName,
         firstName,
         lastName,
         image,
@@ -63,11 +65,23 @@ module.exports = {
       await userRoles.create({
         roleId: userRole.id,
         userId: user.id,
+        chatToken: controllerUtils.generateChatId(),
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       console.log("NEW USER CREATED SUCCESSFULLY.");
     }
+
+    if (!user?.chatToken) {
+      await users.update({
+        chatToken: controllerUtils.generateChatId(),
+      }, {
+        where: {
+          id: user?.id
+        }
+      })
+    }
+
 
     user = await controllerUtils.getUser(user.id);
 

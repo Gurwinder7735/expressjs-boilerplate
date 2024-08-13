@@ -11,23 +11,163 @@ const { getUnreadMessagesCount } = require('./controller-utils.js');
 const { RESPONSE_MSGS } = require('../../utils/response/response-messages.js');
 const STATUS_CODES = require('../../utils/response/status-codes.js');
 const AppError = require('../../utils/error-handlers/app-error.js');
+const controllerUtils = require('./controller-utils.js');
 
 
 const { users, userRoles, roles, chatConstants, chatMessages } = initModels(Models.sequelize);
 
 module.exports = {
 
+  // createChat: asyncHandler(async (req, res, next) => {
+
+
+
+  //   const currentUserId = req.user.id;
+
+  //   const receiverId = req?.params?.receiverSlug;
+
+
+  //   let chat = await chatConstants.findOne({
+  //     where: {
+  //       [Op.or]: [
+  //         {
+  //           user1Id: receiverId,
+  //           user2Id: req.user.id,
+  //         },
+  //         {
+  //           user1Id: req.user.id,
+  //           user2Id: receiverId,
+  //         },
+  //       ],
+  //     },
+  //     raw: true,
+  //   });
+
+
+  //   if (!chat) {
+  //     chat = await chatConstants.create({
+  //       user1Id: req.user.id,
+  //       user2Id: receiverId,
+  //     });
+
+  //     chat = await sequelize.query(
+  //       `
+  //   SELECT 
+  //     c.*,
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u1."id"
+  //       ELSE u2."id"
+  //     END AS "senderId",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u1."name"
+  //       ELSE u2."name"
+  //     END AS "senderName",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u1."email"
+  //       ELSE u2."email"
+  //     END AS "senderEmail",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u1."image"
+  //       ELSE u2."image"
+  //     END AS "senderImage",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u2."id"
+  //       ELSE u1."id"
+  //     END AS "receiverId",
+  //     (
+  //       SELECT "isOnline"
+  //       FROM "users" u
+  //       WHERE u."id" = (
+  //         CASE 
+  //           WHEN c."user1Id" = :loggedInUser THEN u2."id"
+  //           ELSE u1."id"
+  //         END
+  //       )
+  //     ) AS "isOnline",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u2."name"
+  //       ELSE u1."name"
+  //     END AS "receiverName",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u2."email"
+  //       ELSE u1."email"
+  //     END AS "receiverEmail",
+  //     CASE 
+  //       WHEN c."user1Id" = :loggedInUser THEN u2."image"
+  //       ELSE u1."image"
+  //     END AS "receiverImage",
+  //     (
+  //       SELECT COUNT(*)
+  //       FROM "chatMessages"
+  //       WHERE "chatId" = c."id"
+  //         AND "receiverId" = :loggedInUser
+  //         AND "isRead" = false
+  //     ) AS "unreadMessagesCount",
+  //     (
+  //       SELECT "message"
+  //       FROM "chatMessages"
+  //       WHERE c."lastMessageId" = "chatMessages"."id"
+  //     ) AS "lastMessage"
+  //   FROM 
+  //     "chatConstants" c
+  //   JOIN 
+  //     "users" u1 ON c."user1Id" = u1."id"
+  //   JOIN 
+  //     "users" u2 ON c."user2Id" = u2."id"
+  //   WHERE 
+  //     c."id" = ${chat.id}
+  // `,
+  //       {
+  //         replacements: { loggedInUser: receiverId },
+  //         type: Sequelize.QueryTypes.SELECT,
+  //       }
+  //     );
+
+  //     return sendSuccess(req, res, STATUS_CODES.SUCCESS, RESPONSE_MSGS.SUCCESS.CHAT_CREATED, chat);
+  //   } else {
+  //     let fieldsToUpdate = {
+  //       user1Id: req.user.id,
+  //       user2Id: receiverId,
+  //     };
+
+  //     if (chat.deletedBy == currentUserId) {
+  //       fieldsToUpdate = {
+  //         ...fieldsToUpdate,
+  //         deletedBy: null
+  //       };
+  //     }
+
+  //     await chatConstants.update(fieldsToUpdate, {
+  //       where: {
+  //         id: chat?.id
+  //       },
+  //     });
+
+  //     await sequelize.query(
+  //       'UPDATE "chatConstants" SET "updatedAt" = :updatedAt WHERE id = :id',
+  //       {
+  //         replacements: { updatedAt: new Date(), id: chat?.id },
+  //         type: QueryTypes.UPDATE
+  //       }
+  //     );
+  //   }
+
+  //   return sendSuccess(req, res, STATUS_CODES.SUCCESS, RESPONSE_MSGS.SUCCESS.CHAT_CREATED, chat);
+  // }),
+
   createChat: asyncHandler(async (req, res, next) => {
 
 
+    const user = await controllerUtils.getUserFromChatToken(req.body.chatToken);
+
+    if (!user || user?.id === req.user.id) {
+      return next(new AppError(RESPONSE_MSGS.ERROR.INVALID_CHAT_TOKEN, STATUS_CODES.BAD_REQUEST));
+    }
 
     const currentUserId = req.user.id;
 
+    const receiverId = user?.id;
 
-
-    const receiverId = req?.params?.receiverSlug;
-
-    // return res.send({ currentUserId, id: req.user.id })
 
     let chat = await chatConstants.findOne({
       where: {
@@ -330,21 +470,21 @@ module.exports = {
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.name
           ELSE u2.name
-        END AS senderName,
+        END AS "senderName",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.email
           ELSE u2.email
-        END AS senderEmail,
+        END AS "senderEmail",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u1.image
           ELSE u2.image
-        END AS senderImage,
+        END AS "senderImage",
         CASE 
           WHEN c.user1Id = :loggedInUser THEN u2.id
           ELSE u1.id
-        END AS receiverId,
+        END AS "receiverId",
         (
-          SELECT isOnline
+          SELECT "isOnline"
           FROM users u
           WHERE u.id = (
             CASE 
@@ -352,19 +492,19 @@ module.exports = {
               ELSE u1.id
             END
           )
-        ) AS isOnline,
+        ) AS "isOnline",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.name
           ELSE u1.name
-        END AS receiverName,
+        END AS "receiverName",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.email
           ELSE u1.email
-        END AS receiverEmail,
+        END AS "receiverEmail",
         CASE 
           WHEN c."user1Id" = :loggedInUser THEN u2.image
           ELSE u1.image
-        END AS receiverImage,
+        END AS "receiverImage",
         (
           SELECT COUNT(*)
           FROM "chatMessages"
@@ -372,16 +512,16 @@ module.exports = {
             AND "receiverId" = :loggedInUser
             AND "isRead" = false
             AND "deletedBy" IS DISTINCT FROM :loggedInUser
-        ) AS unreadMessagesCount,
+        ) AS "unreadMessagesCount",
         (
           SELECT message
           FROM "chatMessages"
           WHERE "deletedBy" IS DISTINCT FROM :loggedInUser 
             AND "chatMessages".chatId = c.id 
           ORDER BY id DESC LIMIT 1
-        ) AS lastMessage
+        ) AS "lastMessage"
       FROM 
-        chatConstants c
+        "chatConstants" c
       JOIN 
         users u1 ON c."user1Id" = u1.id
       JOIN 

@@ -34,7 +34,9 @@ module.exports = {
     return io.on('connection', async (socket) => {
       try {
 
-        const token = socket.handshake.auth.token || socket.handshake.headers.auth;
+        console.log(socket.handshake.auth.token, "socket.handshake.headers.auth");
+
+        const token = socket.handshake.auth.token;
 
 
 

@@ -76,6 +76,12 @@ const RESPONSE_MSGS = {
         ge: 'Erfolg',
       },
     },
+    INVALID_CHAT_TOKEN: {
+      message: {
+        en: 'Invalid Chat Token.',
+        ge: 'Erfolg',
+      },
+    },
     TOKEN_MISSING: {
       message: {
         en: 'Token missing.',
